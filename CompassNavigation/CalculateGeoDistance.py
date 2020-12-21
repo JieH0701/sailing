@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from geopy.distance import geodesic
 from geopy.distance import great_circle
+import geomag
 import math
 
 
@@ -29,7 +30,7 @@ class CalculateGeoDistance:
         return "{:.2f}".format(dis)
 
     @staticmethod
-    def calculate_compass_bearing(start, end):
+    def calculate_map_course(start, end):
         lat1 = math.radians(start.latitude)
         lat2 = math.radians(end.latitude)
         diff_long = math.radians(end.longitude - start.longitude)
@@ -44,9 +45,7 @@ class CalculateGeoDistance:
         return "{:.2f}".format(compass_bearing)
 
     @staticmethod
-    def get_str_for_nautical_courses(start: GeoPosition, end: GeoPosition):
-        dis = CalculateGeoDistance.calculate_nautical_mile(start, end)
-        compass = CalculateGeoDistance.calculate_compass_bearing(start, end)
-        nautical_mile = f'The distance between {start.name} and {end.name} is {dis} nautical mile. \n'
-        compass_bearing = f'The compass bearing between {start.name} and {end.name} is {compass} Grad. \n'
-        return nautical_mile + compass_bearing
+    def cal_course_with_magnetic_declination(map_course, start: GeoPosition):
+        return geomag.mag_heading(map_course, start.latitude, start.longitude)
+
+

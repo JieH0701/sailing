@@ -2,3 +2,5 @@ geographiclib
 conda install -c conda-forge proj
 conda install -c conda-forge proj-data
 geopy
+geo
+geomag
