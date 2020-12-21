@@ -6,4 +6,4 @@
 *.iml
 out
 gen
- NauticalInformation/__pycache__/
+ CompassNavigation/__pycache__/

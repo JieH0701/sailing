@@ -1,10 +1,10 @@
 from geopy.geocoders import Nominatim
-import NauticalInformation.CalculateGeoDistance as Geo
-import NauticalInformation.CalculateMagenticDeviation as Devi
+import CompassNavigation.CalculateGeoDistance as Geo
+import CompassNavigation.CalculateMagenticDeviation as Devi
 
 
 def main(appname, start_position, end_position):
-    devication_table_path = 'NauticalInformation/magnetic_deviation_table.csv'
+    devication_table_path = 'CompassNavigation/magnetic_deviation_table.csv'
     geolocator = Nominatim(user_agent=appname)
 
     mygeo = Geo.CalculateGeoDistance(geolocator)
