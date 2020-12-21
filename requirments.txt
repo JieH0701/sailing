@@ -4,3 +4,6 @@ conda install -c conda-forge proj-data
 geopy
 geo
 geomag
+nvector
+flask
+Flask-RESTful
