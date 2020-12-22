@@ -6,4 +6,4 @@
 *.iml
 out
 gen
- CompassNavigation/__pycache__/
+ navigation/__pycache__/

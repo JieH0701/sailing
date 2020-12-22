@@ -1,22 +1,19 @@
-from geopy.geocoders import Nominatim
-import CompassNavigation.CalculateGeoDistance as Geo
-import CompassNavigation.CalculateMagenticDeviation as Devi
+import navigation.get_geo_position as geo
+import navigation.navigation_calculations as dis
+from navigation.cal_mag_deviation import CalculateMagenticDeviation as MagDev
 
 
-def main(appname, start_position, end_position):
-    devication_table_path = 'CompassNavigation/magnetic_deviation_table.csv'
-    geolocator = Nominatim(user_agent=appname)
-
-    mygeo = Geo.CalculateGeoDistance(geolocator)
+def main(name, start_position, end_position):
+    mygeo = geo.GetGeoPosition(name)
     start = mygeo.get_geo_position(start_position)
     end = mygeo.get_geo_position(end_position)
 
-    distance = mygeo.calculate_nautical_mile(start, end)
-    map_course = mygeo.calculate_map_course(start, end)
+    distance = dis.calculate_nautical_mile(start, end)
+    map_course = dis.calculate_map_course_from_start_end(start, end)
 
-    course_with_declination = mygeo.cal_course_with_magnetic_declination(float(map_course), start)
-    course_with_devication = Devi.CalculateMagenticDeviation(
-        devication_table_path, float(course_with_declination), 'magnetica_course').cal_course_with_deviation()
+    course_with_declination = dis.cal_course_with_magnetic_declination(map_course, start.latitude, start.longitude)
+
+    course_with_devication = MagDev(course_with_declination, 'magnetica course').cal_course_with_deviation()
 
     nautical_mile = f'The distance between {start_position} and {end_position} is {distance} nautical mile. \n'
     map_course = f'The map course between {start_position} and {end_position} is {map_course} Grad. \n'
@@ -27,6 +24,6 @@ def main(appname, start_position, end_position):
 
 
 if __name__ == '__main__':
-    name = 'Sailing'
-    print(f'Hi, this is my {name} application. Just for fun!')
-    main(name, 'Marina Grado', 'Marina Venedig')
+    appname = 'Sailing'
+    print(f'Hi, this is my {appname} application. Just for fun!')
+    main(appname, 'Marina Grado', 'Marina Venedig')
