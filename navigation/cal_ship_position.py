@@ -1,15 +1,15 @@
-import navigation.navigation_calculations as dis
+from navigation.navigation_calculations import Location, cal_course_line, cal_position_fix, cal_position_triangle
 
 
 class CalculateShipPosition:
-    def __init__(self, course1, location1, course2, location2, course3=None, location3=None):
-        self.loc1 = dis.cal_line_vector(course1, location1)
-        self.loc2 = dis.cal_line_vector(course2, location2)
-        if course3 is not None:
-            self.loc3 = dis.cal_line_vector(course3, location3)
-            self.res = dis.cal_position_triangle(self.loc1, self.loc2, self.loc3)
+    def __init__(self, loc1: Location, loc2: Location, loc3: Location = None):
+        self.lop1 = cal_course_line(loc1)
+        self.lop2 = cal_course_line(loc2)
+        if loc3 is not None:
+            self.lop3 = cal_course_line(loc3)
+            self.res = cal_position_triangle(self.lop1, self.lop2, self.lop3)
         else:
-            self.fuc = dis.cal_position_fix(self.loc1, self.loc2)
+            self.res = cal_position_fix(self.lop1, self.lop2)
 
     def __str__(self):
         pass

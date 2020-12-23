@@ -1,40 +1,33 @@
 import pandas as pd
-from navigation.navigation_calculations import cal_interp
+import numpy as np
 
 
 class CalculateMagenticDeviation:
-    def __init__(self, course_input, method='compass course', path='navigation/magnetic_deviation_table.csv'):
-        self.path = path
-        self.deviation = pd.read_csv(path, header=0)
-        self.compass_course = self.deviation.compass_course.to_list()
-        self.devication_mc = {self.compass_course[i]: self.deviation.deviation_mc.to_list()[i]
-                              for i in range(len(self.compass_course))}
-        self.devication_cc = {self.compass_course[i]: self.deviation.deviation_cc.to_list()[i]
-                              for i in range(len(self.compass_course))}
-        self.method = method
-        if 0 <= course_input < 360:
-            self.course_input = int(course_input)
-        else:
-            print(f'The course input {course_input} is wrong, use default vaule 0')
-            self.course_input = 0
+    def __init__(self, path='navigation/magnetic_deviation_table.csv'):
+        self.__deviation = pd.read_csv(path, header=0)
+        self.__courses = self.__deviation.compass_course.to_list()
+        self.__devication_mc = {self.__courses[i]: self.__deviation.deviation_mc.to_list()[i]
+                                for i in range(len(self.__courses))}
+        self.__devication_cc = {self.__courses[i]: self.__deviation.deviation_cc.to_list()[i]
+                                for i in range(len(self.__courses))}
 
-    def cal_deviation(self, deviation_table):
-        if round(self.course_input) in self.compass_course:
-            devication = deviation_table.get(self.course_input)
+    def __cal_deviation(self, deviation_table, course):
+        if round(course) in self.__courses:
+            devication = deviation_table.get(course)
             return devication
         else:
-            course_range = cal_course_from_num(self.course_input)
+            course_range = cal_course_from_num(course)
             lower_devication = deviation_table.get(course_range[0])
             upper_devication = deviation_table.get(course_range[1])
             devication = cal_interp(
-                course_range[0], lower_devication, course_range[1], upper_devication, self.course_input)
+                course_range[0], lower_devication, course_range[1], upper_devication, course)
             return devication
 
-    def cal_course_with_deviation(self):
-        if self.method == 'compass':
-            return CalculateMagenticDeviation.cal_deviation(self, self.devication_mc) + self.course_input
+    def cal_deviation(self, course, method):
+        if method == 'compass':
+            return CalculateMagenticDeviation.__cal_deviation(self, self.__devication_cc, course)
         else:
-            return self.course_input - CalculateMagenticDeviation.cal_deviation(self, self.devication_mc)
+            return CalculateMagenticDeviation.__cal_deviation(self, self.__devication_mc, course)
 
 
 def cal_course_from_num(num):
@@ -42,3 +35,9 @@ def cal_course_from_num(num):
     upper = (num + 1) * 10
     lower = num * 10
     return upper, lower
+
+
+def cal_interp(x1, y1, x2, y2, x0):
+    x = [x1, x2]
+    y = [y1, y2]
+    return np.interp(x0, x, y)
