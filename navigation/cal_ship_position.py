@@ -12,4 +12,10 @@ class CalculateShipPosition:
             self.res = cal_position_fix(self.lop1, self.lop2)
 
     def __str__(self):
-        pass
+        output = f'The ship position is latitue:{self.res.latitude} and longtitude:{self.res.longitude}'
+        return output
+
+    def get_ship_position(self):
+        return self.res
+
+

@@ -70,7 +70,7 @@ def cal_map_course(location: Location, deviation: CalculateMagenticDeviation):
 
 
 def cal_course_line(loc: Location):
-    angle = (loc.map_course // 90) * 90 + loc.map_course  # get the degree from map_course between 0-90
+    angle = loc.map_course - (loc.map_course // 90) * 90  # get the degree from map_course between 0-90
     slop = round(math.sin(math.radians(angle)), 2)
     intercept = round(loc.longitude - slop * loc.latitude, 2)
     return LoP(name=loc.name, slop=slop, intercept=intercept)
