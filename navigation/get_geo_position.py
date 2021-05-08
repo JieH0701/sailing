@@ -12,3 +12,5 @@ class GetGeoPosition:
         geoposition = geo_position(name=address_name, latitude=position.latitude
                                    , longitude=position.longitude)
         return geoposition
+
+

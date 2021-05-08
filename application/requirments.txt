@@ -1,0 +1,13 @@
+geographiclib
+proj
+proj-data
+geopy
+geo
+geomag
+pytest
+numpy
+Flask-JWT
+Flask
+Flask-RESTful
+Flask-SQLAlchemy
+uwsgi
