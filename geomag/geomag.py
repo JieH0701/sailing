@@ -1,20 +1,3 @@
-# geomag.py
-# by Christopher Weiss cmweiss@gmail.com
-
-# Adapted from the geomagc software and World Magnetic Model of the NOAA
-# Satellite and Information Service, National Geophysical Data Center
-# http://www.ngdc.noaa.gov/geomag/WMM/DoDWMM.shtml
-#
-# Suggestions for improvements are appreciated.
-
-# USAGE:
-#
-# >>> gm = geomag.GeoMag("WMM.COF")
-# >>> mag = gm.GeoMag(80,0)
-# >>> mag.dec
-# -6.1335150785195536
-# >>>
-
 import math, os, unittest
 from datetime import date
 
