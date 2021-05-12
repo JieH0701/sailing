@@ -3,14 +3,13 @@ import numpy as np
 
 
 class CalculateMagenticDeviation:
-    def __init__(self, path='navigation/magnetic_deviation_table.csv'):
+    def __init__(self, path='/Users/Pinguhu/Developer/sailing/navigation/magnetic_deviation_table.csv'):
         self.__deviation = pd.read_csv(path, header=0)
         self.__courses = self.__deviation.compass_course.to_list()
         self.__devication_mc = {self.__courses[i]: self.__deviation.deviation_mc.to_list()[i]
                                 for i in range(len(self.__courses))}
         self.__devication_cc = {self.__courses[i]: self.__deviation.deviation_cc.to_list()[i]
                                 for i in range(len(self.__courses))}
-
 
     def __cal_deviation(self, deviation_table, course):
         if course in self.__courses:
@@ -23,7 +22,6 @@ class CalculateMagenticDeviation:
             devication = cal_interp(
                 course_range[0], lower_devication, course_range[1], upper_devication, course)
             return devication
-
 
     def cal_deviation(self, course, method):
         if method == 'compass':

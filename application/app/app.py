@@ -23,7 +23,7 @@ jwt = JWT(app, authenticate, identity)  # /auth
 
 api.add_resource(Location, '/location/<string:name>')
 api.add_resource(LocationList, '/locations')
-api.add_resource(Course, '/course')
+api.add_resource(Course, '/course/<string:date>')
 api.add_resource(CourseList, '/courses')
 api.add_resource(UserRegister, '/register')
 

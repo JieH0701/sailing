@@ -1,12 +1,15 @@
 from application.db import db
 from sqlalchemy.sql import func
+import navigation.navigation_calculations as dis
+from application.models.location_model import LocationModel
+from navigation.cal_mag_deviation import CalculateMagenticDeviation as MagDev
 
 
 class CourseModel(db.Model):
     __tablename__ = 'courses'
     hash_key = db.Column(db.String(80), primary_key=True)
     timestamp = db.Column(db.DateTime(timezone=True), default=func.now())
-    date = db.Column(db.Date, default=func.today())
+    date = db.Column(db.String(80), default=func.today())
 
     start_name = db.Column(db.String(80), db.ForeignKey('locations.name'), nullable=False)
     start = db.relationship('LocationModel', foreign_keys=start_name)
@@ -22,13 +25,34 @@ class CourseModel(db.Model):
         self.date = date
         self.start_name = start_name
         self.end_name = end_name
+        self.map_course = self.get_map_couse()
+        self.compass_course = self.get_compass_course()
+
+    def get_map_couse(self):
+        start_location = LocationModel.find_by_name(self.start_name)
+        end_location = LocationModel.find_by_name(self.end_name)
+        return dis.calculate_map_course_from_start_end(self.convert_locationmodel_to_geolocation(start_location),
+                                                       self.convert_locationmodel_to_geolocation(end_location))
+
+    def get_compass_course(self):
+        map_course = self.get_map_couse()
+        start_location = LocationModel.find_by_name(self.start_name)
+        start_geo_location = self.convert_locationmodel_to_geolocation(start_location)
+        boat_position = dis.BoatPosition(start_geo_location.name, start_geo_location.latitude,
+                                         start_geo_location.longitude, map_course=map_course)
+        mag_dev = MagDev()
+        return dis.cal_compass_course(boat_position, mag_dev)
 
     @staticmethod
     def create_hash_key(date, start_name, end_name):
         return hash((date, start_name, end_name))
 
+    @staticmethod
+    def convert_locationmodel_to_geolocation(loc: LocationModel):
+        return dis.GeoLocation(name=loc.name, latitude=loc.latitude, longitude=loc.longtitude)
+
     def json(self):
-        return {'timestamp': self.timestamp, 'start_name': self.start_name, 'end_name': self.end_name,
+        return {'start_name': self.start_name, 'end_name': self.end_name,
                 'map_course': self.map_course, 'compass_course': self.compass_course}
 
     @classmethod
@@ -46,7 +70,7 @@ class CourseModel(db.Model):
 
     @classmethod
     def find_by_date(cls, date):
-        return {date: [course.json() for course in cls.query.filter_by(name=date).all()]}
+        return {date: [course.json() for course in cls.query.filter_by(date=date).all()]}
 
     def save_to_db(self):
         db.session.add(self)
