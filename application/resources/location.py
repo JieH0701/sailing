@@ -1,7 +1,6 @@
 from flask_restful import Resource, reqparse
 from flask_jwt import jwt_required
 from application.models.location_model import LocationModel
-import navigation.get_geo_position as geo
 
 
 class Location(Resource):
@@ -22,12 +21,11 @@ class Location(Resource):
         else:
             return {'message': "An location with name '{}' hasn't saved in Database.".format(name)}, 404
 
-    def post(self, name):
+    @staticmethod
+    def post(name):
         if LocationModel.find_by_name(name):
             return {'message': "An location with name '{}' already exists.".format(name)}, 400
-        mygeo = geo.GetGeoPosition(name)
-        loc = mygeo.get_geo_position(name)
-        location = LocationModel(name, loc.longitude, loc.latitude)
+        location = LocationModel.get_location_by_name(name)
         try:
             location.save_to_db(), 201
         except:
@@ -37,7 +35,7 @@ class Location(Resource):
         location = LocationModel.find_by_name(name)
         if location:
             location.delet_from_db()
-        return {'message': "Location '{}' deleted".format(name)}
+        return {'message': "BoatPosition '{}' deleted".format(name)}
 
     # def put(self):
     #     location = LocationModel.find_by_name(self.name)

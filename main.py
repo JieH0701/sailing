@@ -11,7 +11,7 @@ def main(name, start_position, end_position):
     distance = dis.calculate_nautical_mile(start, end)
     map_course = dis.calculate_map_course_from_start_end(start, end)
 
-    star_location = dis.Location(start.name, start.latitude, start.longitude, map_course=map_course)
+    star_location = dis.BoatPosition(start.name, start.latitude, start.longitude, map_course=map_course)
     mag_dev = MagDev()
 
     compas_course = dis.cal_compass_course(star_location, mag_dev)

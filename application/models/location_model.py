@@ -1,4 +1,5 @@
 from application.db import db
+import navigation.get_geo_position as geo
 
 
 class LocationModel(db.Model):
@@ -7,9 +8,6 @@ class LocationModel(db.Model):
     name = db.Column(db.String(80))
     latitude = db.Column(db.Float(precision=2))
     longtitude = db.Column(db.Float(precision=2))
-
-    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'))
-    cource = db.relationship('CourseModel')
 
     def __init__(self, name, longtitude, latitude):
         self.name = name
@@ -23,6 +21,12 @@ class LocationModel(db.Model):
     def find_by_name(cls, name):
         return cls.query.filter_by(name=name).first()
 
+    @staticmethod
+    def get_location_by_name(name):
+        geo_position = geo.GetGeoPosition("application").get_geo_position(name)
+        location = LocationModel(name, geo_position.longitude, geo_position.latitude)
+        return location
+
     def save_to_db(self):
         db.session.add(self)
         db.session.commit()
@@ -30,6 +34,3 @@ class LocationModel(db.Model):
     def delete_from_db(self):
         db.session.delete(self)
         db.session.commit()
-
-
-
