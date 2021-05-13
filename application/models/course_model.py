@@ -1,5 +1,3 @@
-from sqlalchemy import ForeignKeyConstraint
-
 from application.db import db
 from sqlalchemy.sql import func
 import navigation.navigation_calculations as dis
@@ -9,7 +7,7 @@ from navigation.cal_mag_deviation import CalculateMagenticDeviation as MagDev
 
 class CourseModel(db.Model):
     __tablename__ = 'courses'
-    hash_key = db.Column(db.String(80), primary_key=True)
+    hash_key = db.Column(db.BigInteger, primary_key=True)
     timestamp = db.Column(db.DateTime(timezone=True), default=func.now())
     date = db.Column(db.String(80), default=func.to_char(func.today, '%Y-%m-%d'))
 
