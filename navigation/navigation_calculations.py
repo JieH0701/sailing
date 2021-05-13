@@ -2,22 +2,23 @@ from geopy.distance import geodesic, great_circle
 import geomag
 import math
 from dataclasses import dataclass, replace
-from datetime import date
 from navigation.cal_mag_deviation import CalculateMagenticDeviation
+from datetime import datetime
 
 
 @dataclass()
-class GeoPosition:
+class GeoLocation:
     name: str
     latitude: float
     longitude: float
 
 
 @dataclass()
-class Location(GeoPosition):
+class SailingCourse(GeoLocation):
     map_course: float = None
     compass_course: float = None
-    time: date = date.today()
+    nautical_mile: float = None
+    date: str = None
 
 
 @dataclass()
@@ -27,7 +28,11 @@ class LoP:
     intercept: float
 
 
-def calculate_nautical_mile(start, end, method='geodesic'):
+def convert_str_to_date(date_str: str):
+    return datetime.strptime(date_str, '%Y-%m-%d').date()
+
+
+def calculate_nautical_mile(start: GeoLocation, end: GeoLocation, method='geodesic'):
     if method == 'great_circle':
         dis = great_circle((start.latitude, start.longitude), (end.latitude, end.longitude)).nm
     else:
@@ -35,7 +40,7 @@ def calculate_nautical_mile(start, end, method='geodesic'):
     return round(dis, 2)
 
 
-def calculate_map_course_from_start_end(start, end):
+def calculate_map_course_from_start_end(start: GeoLocation, end: GeoLocation):
     lat1 = math.radians(start.latitude)
     lat2 = math.radians(end.latitude)
     diff_long = math.radians(end.longitude - start.longitude)
@@ -50,39 +55,39 @@ def calculate_map_course_from_start_end(start, end):
     return round(compass_bearing, 2)
 
 
-def cal_magnetic_declination(location: Location):
-    declination = geomag.declination(location.latitude, location.longitude, time=location.time)
+def cal_magnetic_declination(course: SailingCourse):
+    declination = geomag.declination(course.latitude, course.longitude, time=convert_str_to_date(course.date))
     return round(declination)
 
 
-def cal_compass_course(location: Location, deviation: CalculateMagenticDeviation):
-    declination = cal_magnetic_declination(location)
-    deviation = deviation.cal_deviation(location.map_course, 'map')
-    compas_course = location.map_course - declination - deviation
+def cal_compass_course(course: SailingCourse, deviation: CalculateMagenticDeviation):
+    declination = cal_magnetic_declination(course)
+    deviation = deviation.cal_deviation(course.map_course, 'map')
+    compas_course = course.map_course - declination - deviation
     return int(compas_course)
 
 
-def cal_map_course(location: Location, deviation: CalculateMagenticDeviation):
-    declination = cal_magnetic_declination(location)
-    deviation = deviation.cal_deviation(location.compass_course, 'compass')
-    map_course = location.compass_course + declination + deviation
+def cal_map_course(course: SailingCourse, deviation: CalculateMagenticDeviation):
+    declination = cal_magnetic_declination(course)
+    deviation = deviation.cal_deviation(course.compass_course, 'compass')
+    map_course = course.compass_course + declination + deviation
     return int(map_course)
 
 
-def cal_course_line(loc: Location):
-    angle = loc.map_course - (loc.map_course // 90) * 90  # get the degree from map_course between 0-90
+def cal_course_line(course: SailingCourse):
+    angle = course.map_course - (course.map_course // 90) * 90  # get the degree from map_course between 0-90
     slop = round(math.sin(math.radians(angle)), 2)
-    intercept = round(loc.longitude - slop * loc.latitude, 2)
-    return LoP(name=loc.name, slop=slop, intercept=intercept)
+    intercept = round(course.longitude - slop * course.latitude, 2)
+    return LoP(name=course.name, slop=slop, intercept=intercept)
 
 
-def fill_location_course(location: Location, deviation: CalculateMagenticDeviation):
-    if location.map_course is None:
-        map_course = cal_map_course(location, deviation)
-        return replace(location, map_course=map_course)
+def fill_location_course(course: SailingCourse, deviation: CalculateMagenticDeviation):
+    if course.map_course is None:
+        map_course = cal_map_course(course, deviation)
+        return replace(course, map_course=map_course)
     else:
-        compass_course = cal_compass_course(location, deviation)
-        return replace(location, compass_course=compass_course)
+        compass_course = cal_compass_course(course, deviation)
+        return replace(course, compass_course=compass_course)
 
 
 def check_course_in_compas_range(course):
@@ -96,16 +101,16 @@ def check_course_in_compas_range(course):
 def cal_position_fix(lop1: LoP, lop2: LoP):
     if lop1.slop == lop2.slop:
         print("This two place are parallel")
-        return GeoPosition('myPosition', 0, 0)
+        return GeoLocation('myPosition', 0, 0)
     else:
         mylatitude = (lop2.intercept - lop1.intercept) / (lop1.slop - lop2.slop)
         mylongtitude = lop1.slop * mylatitude + lop1.intercept
-        return GeoPosition('Fix Position', round(mylatitude, 2), round(mylongtitude, 2))
+        return GeoLocation('Fix Position', round(mylatitude, 2), round(mylongtitude, 2))
 
 
 def cal_position_triangle(lop1: LoP, lop2: LoP, lop3: LoP):
     p1 = cal_position_fix(lop1, lop2)
     p2 = cal_position_fix(lop2, lop3)
     p3 = cal_position_fix(lop1, lop3)
-    return GeoPosition('Middle of Triangel', (p1.latitude + p2.latitude + p3.latitude) / 3,
+    return GeoLocation('Middle of Triangel', (p1.latitude + p2.latitude + p3.latitude) / 3,
                        (p1.longitude + p2.longitude + p3.longitude) / 3)

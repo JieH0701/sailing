@@ -11,7 +11,6 @@ class CalculateMagenticDeviation:
         self.__devication_cc = {self.__courses[i]: self.__deviation.deviation_cc.to_list()[i]
                                 for i in range(len(self.__courses))}
 
-
     def __cal_deviation(self, deviation_table, course):
         if course in self.__courses:
             devication = deviation_table.get(course)
@@ -23,7 +22,6 @@ class CalculateMagenticDeviation:
             devication = cal_interp(
                 course_range[0], lower_devication, course_range[1], upper_devication, course)
             return devication
-
 
     def cal_deviation(self, course, method):
         if method == 'compass':
