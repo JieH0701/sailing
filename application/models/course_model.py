@@ -1,3 +1,5 @@
+from sqlalchemy import ForeignKeyConstraint
+
 from application.db import db
 from sqlalchemy.sql import func
 import navigation.navigation_calculations as dis
