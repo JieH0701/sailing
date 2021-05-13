@@ -60,8 +60,9 @@ class CourseModel(db.Model):
         return dis.GeoLocation(name=loc.name, latitude=loc.latitude, longitude=loc.longtitude)
 
     def json(self):
-        return {'start_name': self.start_name, 'end_name': self.end_name,
-                'map_course': self.map_course, 'compass_course': self.compass_course}
+        return {'date': self.date, 'start_name': self.start_name, 'end_name': self.end_name,
+                'map_course': self.map_course, 'compass_course': self.compass_course,
+                'nautical_mile': self.nautical_mile}
 
     @classmethod
     def find_course(cls, date, start_time, end_time):
