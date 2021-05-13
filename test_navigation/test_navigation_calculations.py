@@ -1,7 +1,6 @@
 import pytest
 import navigation.navigation_calculations as dis
 from navigation.cal_mag_deviation import CalculateMagenticDeviation
-from datetime import datetime
 
 
 @pytest.fixture(scope='module')
@@ -16,14 +15,14 @@ def end():
 
 @pytest.fixture(scope='module')
 def accumer(start):
-    return dis.BoatPosition(start.name, start.latitude, start.longitude, compass_course=309, map_course=317,
-                            time=datetime.strptime('2013-08-14', '%Y-%m-%d').date())
+    return dis.SailingCourse(start.name, start.latitude, start.longitude, compass_course=309, map_course=317,
+                             date='2013-08-14')
 
 
 @pytest.fixture(scope='module')
 def wasserturm(end):
-    return dis.BoatPosition(end.name, end.latitude, end.longitude, compass_course=221, map_course=229,
-                            time=datetime.strptime('2013-08-14', '%Y-%m-%d').date())
+    return dis.SailingCourse(end.name, end.latitude, end.longitude, compass_course=221, map_course=229,
+                             date='2013-08-14')
 
 
 @pytest.fixture(scope='module')

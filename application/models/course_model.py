@@ -9,7 +9,7 @@ class CourseModel(db.Model):
     __tablename__ = 'courses'
     hash_key = db.Column(db.String(80), primary_key=True)
     timestamp = db.Column(db.DateTime(timezone=True), default=func.now())
-    date = db.Column(db.String(80), default=func.today())
+    date = db.Column(db.String(80), default=func.to_char(func.today, '%Y-%m-%d'))
 
     start_name = db.Column(db.String(80), db.ForeignKey('locations.name'), nullable=False)
     start = db.relationship('LocationModel', foreign_keys=start_name)
@@ -19,6 +19,7 @@ class CourseModel(db.Model):
 
     map_course = db.Column(db.Float(precision=1))
     compass_course = db.Column(db.Float(precision=1))
+    nautical_mile = db.Column(db.Float(precision=1))
 
     def __init__(self, date, start_name, end_name):
         self.hash_key = self.create_hash_key(date, start_name, end_name)
@@ -27,6 +28,13 @@ class CourseModel(db.Model):
         self.end_name = end_name
         self.map_course = self.get_map_couse()
         self.compass_course = self.get_compass_course()
+        self.nautical_mile = self.get_nautical_mile()
+
+    def get_nautical_mile(self):
+        start_location = LocationModel.find_by_name(self.start_name)
+        end_location = LocationModel.find_by_name(self.end_name)
+        return dis.calculate_nautical_mile(self.convert_locationmodel_to_geolocation(start_location),
+                                           self.convert_locationmodel_to_geolocation(end_location))
 
     def get_map_couse(self):
         start_location = LocationModel.find_by_name(self.start_name)
@@ -38,10 +46,10 @@ class CourseModel(db.Model):
         map_course = self.get_map_couse()
         start_location = LocationModel.find_by_name(self.start_name)
         start_geo_location = self.convert_locationmodel_to_geolocation(start_location)
-        boat_position = dis.BoatPosition(start_geo_location.name, start_geo_location.latitude,
-                                         start_geo_location.longitude, map_course=map_course)
+        course = dis.SailingCourse(start_geo_location.name, start_geo_location.latitude,
+                                   start_geo_location.longitude, map_course=map_course, date=self.date)
         mag_dev = MagDev()
-        return dis.cal_compass_course(boat_position, mag_dev)
+        return dis.cal_compass_course(course, mag_dev)
 
     @staticmethod
     def create_hash_key(date, start_name, end_name):

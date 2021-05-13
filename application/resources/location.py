@@ -4,14 +4,12 @@ from application.models.location_model import LocationModel
 
 
 class Location(Resource):
-    def __init__(self):
-        self.parser = reqparse.RequestParser()
-        self.data = self.parser.parse_args()
-        self.parser.add_argument(
-            'name',
-            type=str,
-            required=True,
-            help='Every location needs a name')
+    parser = reqparse.RequestParser()
+    parser.add_argument(
+        'name',
+        type=str,
+        required=True,
+        help='Every course needs a name')
 
     @jwt_required()
     def get(self, name):
@@ -19,15 +17,16 @@ class Location(Resource):
         if location:
             return location.json()
         else:
-            return {'message': "An location with name '{}' hasn't saved in Database.".format(name)}, 404
+            return {'message': "An course with name '{}' hasn't saved in Database.".format(name)}, 404
 
     @staticmethod
     def post(name):
         if LocationModel.find_by_name(name):
-            return {'message': "An location with name '{}' already exists.".format(name)}, 400
+            return {'message': "An course with name '{}' already exists.".format(name)}, 400
         location = LocationModel.get_location_by_name(name)
         try:
             location.save_to_db(), 201
+            return {'message': "An course with name '{}' is created".format(name)}
         except:
             return {'message': "An error occurred inserting the item '{}'.".format(name)}, 500
 
@@ -35,17 +34,17 @@ class Location(Resource):
         location = LocationModel.find_by_name(name)
         if location:
             location.delet_from_db()
-        return {'message': "BoatPosition '{}' deleted".format(name)}
+        return {'message': "SailingCourse '{}' deleted".format(name)}
 
     # def put(self):
-    #     location = LocationModel.find_by_name(self.name)
-    #     if location is None:
-    #         location = LocationModel(self.name)
+    #     course = LocationModel.find_by_name(self.name)
+    #     if course is None:
+    #         course = LocationModel(self.name)
     #     else:
-    #         location.latitude = self.data['latitude']
-    #         location.longtitude = self.data['longtitude']
-    #     location.save_to_db()
-    #     return location.json()
+    #         course.latitude = self.data['latitude']
+    #         course.longtitude = self.data['longtitude']
+    #     course.save_to_db()
+    #     return course.json()
 
 
 class LocationList(Resource):

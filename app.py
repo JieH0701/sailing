@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_restful import Api
 from flask_jwt import JWT
-from security import authenticate, identity
+from application.security import authenticate, identity
 from application.resources.user import UserRegister
 from application.resources.location import Location, LocationList
 from application.resources.course import Course, CourseList
@@ -21,9 +21,9 @@ def create_tables():
 
 jwt = JWT(app, authenticate, identity)  # /auth
 
-api.add_resource(Location, '/location/<string:name>')
+api.add_resource(Location, '/course/<string:name>')
 api.add_resource(LocationList, '/locations')
-api.add_resource(Course, '/course/<string:date>')
+api.add_resource(Course, '/course')
 api.add_resource(CourseList, '/courses')
 api.add_resource(UserRegister, '/register')
 

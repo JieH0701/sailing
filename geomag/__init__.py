@@ -18,7 +18,7 @@ def declination(*args, **kargs):
     dlat = latitude in degrees
     dlon = longitude in degrees
     h = altitude in feet, default=0
-    calc_date = date for computing declination, default=today
+    calc_date = date_str for computing declination, default=today
     """
     mag = __singleton__.GeoMag(*args, **kargs)
     return mag.dec

@@ -7,6 +7,11 @@ from application.resources.location import Location
 class Course(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument(
+        'date',
+        type=str,
+        required=True,
+        help='Every course calculation needs a date')
+    parser.add_argument(
         'start_name',
         type=str,
         required=True,
@@ -18,28 +23,31 @@ class Course(Resource):
         help='Every course calculation needs a end position')
 
     @jwt_required()
-    def get(self, date):
-        courses = CourseModel.find_by_date(date)
+    def get(self):
+        data = Course.parser.parse_args()
+        courses = CourseModel.find_by_date(data['date'])
         if courses:
             return courses
         else:
-            return {'message': "An course with this date '{}' does not exist.".format(self.data.get('date'))}, 404
+            return {'message': "An course with this date '{}' does not exist.".format(data['date'])}, 404
 
-    def post(self, date):
+    def post(self):
         data = Course.parser.parse_args()
-        if CourseModel.find_course(date, data['start_name'], data['end_name']):
+        if CourseModel.find_course(data['date'], data['start_name'], data['end_name']):
             return {'message': "An course with start position '{}' already exists.".format(data['start_name'])}, 400
 
         Location.post(data['start_name'])
         Location.post(data['end_name'])
-        course = CourseModel(date, data['start_name'], data['end_name'])
+        course = CourseModel(data['date'], data['start_name'], data['end_name'])
         try:
             course.save_to_db(), 201
+            return {'message': "An course is created"}
         except:
-            return {'message': "An error occurred inserting the course '{}'.".format(self.data['start_name'])}, 500
+            return {'message': "An error occurred inserting the course '{}'.".format(data['start_name'])}, 500
 
     def delete(self):
-        course = CourseModel.find_course(self.data.get('date'), self.data.get('start_name'), self.data.get('end_name'))
+        data = Course.parser.parse_args()
+        course = CourseModel.find_course(data['date'], data['start_name'], data['end_name'])
         if course:
             course.delet_from_db()
             return {'message': 'Course deleted'}

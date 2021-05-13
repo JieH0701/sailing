@@ -5,8 +5,8 @@ from datetime import date
 class GeoMag:
 
     def GeoMag(self, dlat, dlon, h=0,
-               time=date.today()):  # latitude (decimal degrees), longitude (decimal degrees), altitude (feet), date
-        # time = date('Y') + date('z')/365
+               time=date.today()):  # latitude (decimal degrees), longitude (decimal degrees), altitude (feet), date_str
+        # date_str = date_str('Y') + date_str('z')/365
         time = time.year + ((time - date(time.year, 1, 1)).days / 365.0)
         alt = h / 3280.8399
 
@@ -278,7 +278,7 @@ class GeoMagTest(unittest.TestCase):
     d2 = date(2017, 7, 2)
 
     test_values = (
-        # date, alt, lat, lon, var
+        # date_str, alt, lat, lon, var
         (d1, 0, 80, 0, -3.85),
         (d1, 0, 0, 120, 0.57),
         (d1, 0, -80, 240, 69.81),
